@@ -21,17 +21,14 @@ export default function FoodCard({ nombre, descripcion, onPress }: FoodCardProps
                 elevation: 3,
             }}
         >
-            {/* Nombre */}
             <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 5 }}>
                 {nombre}
             </Text>
 
-            {/* Descripción */}
             <Text style={{ fontSize: 14, color: '#555', marginBottom: 10 }}>
                 {descripcion}
             </Text>
 
-            {/* Botón */}
             <TouchableOpacity
                 style={{
                     backgroundColor: '#007AFF',
