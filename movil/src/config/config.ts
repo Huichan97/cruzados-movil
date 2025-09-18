@@ -1,0 +1,12 @@
+import axios from 'axios';
+import { EXPO_BACKEND } from '@env';
+
+const api = axios.create({
+    baseURL: EXPO_BACKEND,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    timeout: 5000,
+});
+
+export default api;

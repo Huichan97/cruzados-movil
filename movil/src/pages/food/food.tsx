@@ -1,50 +1,75 @@
-import React from 'react';
-import { View, Text, ScrollView, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, TextInput, ActivityIndicator, TouchableOpacity } from 'react-native';
 import FoodCard from '../../components/food/foodCard';
+import { useNavigation } from '@react-navigation/native';
+import { useFood } from '../../context/food.context';
 
-const alimentos = [
-  { id: 1, nombre: 'Manzana', descripcion: 'Fruta roja y dulce' },
-  { id: 2, nombre: 'Plátano', descripcion: 'Amarillo y energético' },
-  { id: 3, nombre: 'Pan', descripcion: 'Alimento básico de la dieta' },
-];
+export default function Foods() {
+  const { foods, loading, error } = useFood();
+  const [search, setSearch] = useState('');
+  const navigation = useNavigation<any>();
 
-export default function Alimentos() {
+  const filtered = foods.filter((item) =>
+    (item.tipo || '').toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
-      <View style={{ padding: 20 }}>
-        {/* Mini header */}
-        <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 10 }}>
-          Lista de Alimentos
-        </Text>
+    <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
+      <ScrollView>
+        <View style={{ padding: 20 }}>
+          <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 10 }}>
+            Lista de Comidas
+          </Text>
 
-        {/* Filtros */}
-        <TextInput
-          placeholder="Buscar alimento..."
-          style={{
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 8,
-            padding: 10,
-            marginBottom: 20,
-            backgroundColor: '#fff',
-          }}
-        />
-
-        {/* Cards de alimentos (hijos) */}
-        {alimentos.map((item) => (
-          <FoodCard
-            key={item.id}
-            nombre={item.nombre}
-            descripcion={item.descripcion}
-            onPress={() => alert(`Seleccionaste ${item.nombre}`)}
+          <TextInput
+            placeholder="Buscar comida..."
+            value={search}
+            onChangeText={setSearch}
+            style={{
+              borderWidth: 1,
+              borderColor: '#ccc',
+              borderRadius: 8,
+              padding: 10,
+              marginBottom: 20,
+              backgroundColor: '#fff',
+            }}
           />
-        ))}
 
-        {/* Footer */}
-        <View style={{ marginTop: 30, alignItems: 'center' }}>
-          <Text style={{ color: '#888' }}>© 2025 Cruzados</Text>
+          {loading && <ActivityIndicator size="large" color="#007AFF" />}
+          {error && <Text style={{ color: 'red' }}>{error}</Text>}
+
+          {filtered.map((food) => (
+            <FoodCard
+              key={food.id}
+              nombre={food.tipo}
+              descripcion={`Estado: ${food.estado}`}
+              onPress={() => alert(`Seleccionaste ${food.tipo}`)}
+            />
+          ))}
+
+          <View style={{ marginTop: 30, alignItems: 'center' }}>
+            <Text style={{ color: '#888' }}>© 2025 Cruzados</Text>
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+
+      <TouchableOpacity
+        style={{
+          position: 'absolute',
+          bottom: 20,
+          left: '25%',
+          right: '25%',
+          backgroundColor: '#007AFF',
+          padding: 15,
+          borderRadius: 30,
+          alignItems: 'center',
+        }}
+        onPress={() => navigation.navigate('CreateFood')}
+      >
+        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
+          + Agregar comida
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 }
