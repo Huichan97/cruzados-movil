@@ -3,7 +3,7 @@ import { Ingredient } from "../models/ingredents.model";
 
 export class FoodService {
     static async createFood(data: Partial<IFood>): Promise<IFood> {
-        if (!data.tipo || !data.porcion || !data.horaEvento) {
+        if (!data.nombre || !data.meal || !data.porcion || !data.horaEvento) {
             throw { status: 400, message: 'Faltan campos obligatorios' };
         }
 
@@ -15,11 +15,24 @@ export class FoodService {
         }
 
         const food = new Food(data);
-        return await food.save();
+        await food.save();
+
+        const savedFood = await Food.findById(food._id)
+            .populate("meal", "nombre")  // solo campo nombre
+            .populate("ingredientes", "nombre calorias proteinas grasas carbohidratos")
+            .populate("asignadoPor", "nombre email")
+            .populate("asignadoA", "nombre email");
+
+        if (!savedFood) {
+            throw { status: 500, message: 'Error al crear la comida' };
+        }
+
+        return savedFood;
+
     }
 
     static async getAllFoods(): Promise<IFood[]> {
-        return Food.find({ state: true }).populate('ingredientes');
+        return Food.find({ state: true }).populate('ingredientes',  "nombre calorias proteinas grasas carbohidratos").populate("meal", "nombre");
     }
 
     static async getFoodById(id: number): Promise<IFood | null> {
@@ -35,7 +48,6 @@ export class FoodService {
     }
 
     static async updateIngredients(id: number, ingredientes: string[]): Promise<IFood | null> {
-        // validar que existan
         const count = await Ingredient.countDocuments({ _id: { $in: ingredientes } });
         if (count !== ingredientes.length) {
             throw { status: 400, message: 'Alguno de los ingredientes no existe' };

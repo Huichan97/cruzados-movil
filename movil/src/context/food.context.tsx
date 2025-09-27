@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { createFood, getFoods } from '../routes/food.route';
+import { createIngredient, getIngredients } from '../routes/ingredents.route';
 
 type Food = {
   id: number;
-  tipo: string;
+  nombre: string;
+  meal: any
   porcion: number;
   horaEvento: string;
   estado: string;
@@ -12,10 +14,13 @@ type Food = {
 
 type FoodContextType = {
   foods: Food[];
+  ingredientes: any[];
   loading: boolean;
   error: string | null;
   fetchFoods: () => Promise<void>;
   addFood: (data: Partial<Food>) => Promise<void>;
+  fetchIngredientes: () => Promise<void>;
+  addIngrediente: (data: Partial<any>) => Promise<void>;
 };
 
 const FoodContext = createContext<FoodContextType | undefined>(undefined);
@@ -24,6 +29,9 @@ export const FoodProvider = ({ children }: { children: ReactNode }) => {
   const [foods, setFoods] = useState<Food[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [ingredientes, setIngredientes] = useState<any[]>([]);
+
+
 
   const fetchFoods = async () => {
     try {
@@ -50,12 +58,54 @@ export const FoodProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const fetchIngredientes = async () => {
+    try {
+      setLoading(true);
+      const data = await getIngredients();
+      console.log("Ingredientes que llegaron de la API:", data);
+      const ingredientesArray = Array.isArray(data)
+        ? data
+        : data.ingredients || data.data || [];
+      console.log("Ingredientes que voy a guardar en el context:", ingredientesArray);
+      setIngredientes(ingredientesArray);
+      setError(null);
+    } catch (err: any) {
+      console.error("Error en fetchIngredientes:", err);
+      setError(err.message || 'Error al cargar ingredientes');
+      setIngredientes([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const addIngrediente = async (data: Partial<any>) => {
+    try {
+      setLoading(true);
+      const newIng = await createIngredient(data);
+      setIngredientes((prev) => [...prev, newIng]);
+    } catch (err: any) {
+      setError(err.message || 'Error al crear ingrediente');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchFoods();
   }, []);
 
   return (
-    <FoodContext.Provider value={{ foods, loading, error, fetchFoods, addFood }}>
+    <FoodContext.Provider value={{
+      foods,
+      ingredientes,
+      loading,
+      error,
+      fetchFoods,
+      addFood,
+      addIngrediente,
+      fetchIngredientes,
+    }}>
       {children}
     </FoodContext.Provider>
   );

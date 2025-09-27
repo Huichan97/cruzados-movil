@@ -7,7 +7,6 @@ export interface IIngredient extends Document {
     descripcion?: string;
     cantidad: number;
     tipoPeso: string /*'kg' | 'gr' | 'lb' | "oz" | "mg" | "ml" | "l" | "taza" | "cda" | "cdta" | 'und';*/,
-    horaConsumo?: string; // HH:mm
     calorias: number;
     carbohidratos: number;
     proteinas: number;
@@ -27,8 +26,6 @@ const IngredientSchema = new Schema<IIngredient>(
         descripcion: { type: String, trim: true },
         cantidad: { type: Number, required: true },
         tipoPeso: { type: String, /*enum: ['kg', 'gr', 'lb', "oz", "mg", "ml", "l", "taza", "cda", "cdta", 'und'],*/ required: true },
-        horaConsumo: { type: String },
-
         // Valores nutricionales
         calorias: { type: Number, default: 0 },
         carbohidratos: { type: Number, default: 0 },

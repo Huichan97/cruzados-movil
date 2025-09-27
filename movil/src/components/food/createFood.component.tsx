@@ -1,52 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useFood } from '../../context/food.context';
+import { Picker } from '@react-native-picker/picker';
+import axios from 'axios';
 
 export default function CreateFood() {
     const { addFood } = useFood();
     const navigation = useNavigation<any>();
 
-    const [tipo, setTipo] = useState('');
+    const [meal, setMeal] = useState('');
+    const [nombre, setNombre] = useState('');
     const [porcion, setPorcion] = useState('');
     const [horaEvento, setHoraEvento] = useState('');
-    const [estado, setEstado] = useState('pendiente'); // valor por defecto
+    const [estado, setEstado] = useState('Pendiente'); // valor seleccionado
+    const [estados, setEstados] = useState([  // lista de opciones
+        { nombre: 'Pendiente' },
+        { nombre: 'Programado' },
+        { nombre: 'Realizado' },
+        { nombre: 'Omitido' },
+    ]);
+
+    const [meals, setMeals] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchMeals = async () => {
+            try {
+                const res = await axios.get(`${process.env.EXPO_BACKEND}/api/meals`);
+                console.log("Meals API:", res.data);
+
+                // asegúrate de que sea array
+                const mealsData = Array.isArray(res.data) ? res.data : res.data.data || [];
+                setMeals(mealsData);
+            } catch (err) {
+                console.error('Error al cargar meals', err);
+                setMeals([]);
+            }
+        };
+        fetchMeals();
+    }, []);
 
     const handleSubmit = async () => {
-        if (!tipo || !porcion || !horaEvento) {
+        if (!nombre || !meal || !porcion || !horaEvento) {
             return Alert.alert('Error', 'Todos los campos son obligatorios');
         }
 
         try {
             await addFood({
-                tipo,
+                nombre,
+                meal, // 👈 mandamos el _id
                 porcion: Number(porcion),
                 horaEvento,
                 estado,
-                ingredientes: [],
+                ingredientes: [], // luego se integran ingredientes
             });
 
             Alert.alert('Éxito', 'Comida creada correctamente');
-
-            // En vez de goBack, reseteamos a la lista de Foods
             navigation.navigate('FoodsList');
         } catch (err: any) {
             Alert.alert('Error', err.message || 'No se pudo crear la comida');
         }
     };
 
-
     return (
         <ScrollView style={{ flex: 1, padding: 20, backgroundColor: '#f9f9f9' }}>
             <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 20 }}>
                 Crear nueva comida
             </Text>
-
-            <Text style={{ fontWeight: 'bold' }}>Tipo</Text>
+            <Text>nombre</Text>
             <TextInput
-                placeholder="Desayuno, Almuerzo, Cena..."
-                value={tipo}
-                onChangeText={setTipo}
+                placeholder="ej: arroz con pollo..."
+                value={nombre}
+                onChangeText={setNombre}
                 style={{
                     borderWidth: 1,
                     borderColor: '#ccc',
@@ -56,6 +81,26 @@ export default function CreateFood() {
                     backgroundColor: '#fff',
                 }}
             />
+
+            <Text style={{ fontWeight: 'bold' }}>Tipo</Text>
+            <Picker
+                selectedValue={meal}
+                onValueChange={(itemValue) => setMeal(itemValue)}
+                style={{
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    borderRadius: 8,
+                    marginBottom: 15,
+                    width: '100%',
+                    height: 50,
+                    backgroundColor: '#fff',
+                }}
+            >
+                <Picker.Item label="Seleccionar tipo de comida..." value="" />
+                {meals.map((m) => (
+                    <Picker.Item key={m._id} label={m.nombre} value={m._id} />
+                ))}
+            </Picker>
 
             <Text style={{ fontWeight: 'bold' }}>Porción</Text>
             <TextInput
@@ -89,19 +134,38 @@ export default function CreateFood() {
             />
 
             <Text style={{ fontWeight: 'bold' }}>Estado</Text>
-            <TextInput
-                placeholder="pendiente, programado, completado..."
-                value={estado}
-                onChangeText={setEstado}
+            <Picker
+                selectedValue={estado}
+                onValueChange={(itemValue) => setEstado(itemValue)}
                 style={{
                     borderWidth: 1,
                     borderColor: '#ccc',
                     borderRadius: 8,
-                    padding: 10,
-                    marginBottom: 25,
+                    marginBottom: 15,
+                    width: '100%',
+                    height: 50,
                     backgroundColor: '#fff',
                 }}
-            />
+            >
+                <Picker.Item label="Seleccionar estado" value="" />
+                {estados.map((m) => (
+                    <Picker.Item label={m.nombre} />
+                ))}
+            </Picker>
+            <TouchableOpacity
+                style={{
+                    backgroundColor: '#28a745',
+                    padding: 12,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                    marginBottom: 20,
+                }}
+                onPress={() => navigation.navigate('IngredientesList')}
+            >
+                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Agregar ingredientes</Text>
+            </TouchableOpacity>
+
+
 
             <TouchableOpacity
                 style={{
