@@ -1,16 +1,22 @@
-import dotenv from 'dotenv';
-import db = require('./config/db');
-import app from './app';
+import dotenv from "dotenv";
+import { connectDB } from "./config/db";
+import app from "./app";
 
 dotenv.config();
 
-const PORT = process.env.PORT;
-const MONGO_URI = process.env.MONGO_URI as string;
+const PORT = process.env.PORT || 4000;
+const URL = process.env.URL || "http://localhost";
 
 const startServer = async () => {
-  await db.connectDB(MONGO_URI);
+  await connectDB();
+
   app.listen(PORT, () => {
-    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`
+                *************************************
+                ***** 🚀 Servidor corriendo en  *****
+                *******${URL}:${PORT}*************
+                *************************************
+    `);
   });
 };
 
