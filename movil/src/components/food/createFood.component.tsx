@@ -22,10 +22,13 @@ export default function CreateFood() {
     ]);
     const [meals, setMeals] = useState<any[]>([]);
 
-    const seleccionados = ingredientes.filter(ing =>
-        ingredientesSeleccionados.includes(ing._id)
-    );
-
+    const seleccionados = (ingredientes || []).filter(ing => {
+        if (!ing?._id) {
+            console.warn("Ingrediente inválido:", ing);
+            return false;
+        }
+        return ingredientesSeleccionados.includes(ing._id);
+    });
 
     useEffect(() => {
         const fetchMeals = async () => {

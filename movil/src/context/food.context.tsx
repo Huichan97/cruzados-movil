@@ -84,7 +84,8 @@ export const FoodProvider = ({ children }: { children: ReactNode }) => {
   const addIngrediente = async (data: Partial<any>) => {
     try {
       setLoading(true);
-      const newIng = await createIngredient(data);
+      const response = await createIngredient(data);
+      const newIng = response.data || response;
       setIngredientes((prev) => [...prev, newIng]);
     } catch (err: any) {
       setError(err.message || 'Error al crear ingrediente');
@@ -92,6 +93,7 @@ export const FoodProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchFoods();

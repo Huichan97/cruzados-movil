@@ -4,17 +4,18 @@
     "appVersionSource": "remote"
   },
   "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
     "preview": {
-      "distribution": "internal",
-      "env": {
-        "ENVFILE": ".env.dev"
-      }
+      "distribution": "internal"
     },
     "production": {
-      "distribution": "store",
-      "env": {
-        "ENVFILE": ".env.prod"
-      }
+      "autoIncrement": true
     }
+  },
+  "submit": {
+    "production": {}
   }
 }
