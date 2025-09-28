@@ -10,9 +10,10 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useFood } from '../../context/food.context';
+import IngredienteCard from '../custom/ingredentCard';
 
 export default function IngredientesList() {
-    const { ingredientes, fetchIngredientes, loading } = useFood();
+    const { ingredientes, fetchIngredientes, loading, ingredientesSeleccionados, setIngredientesSeleccionados } = useFood();
     const navigation = useNavigation<any>();
     const [selected, setSelected] = useState<any | null>(null);
 
@@ -30,38 +31,47 @@ export default function IngredientesList() {
                 Lista de ingredientes
             </Text>
 
+
             <FlatList
-                data={Array.isArray(ingredientes) ? ingredientes.filter((ing) => ing && ing._id) : []}
-                numColumns={2}
+                data={ingredientes}
+                numColumns={1} // ahora una columna, cada card maneja su layout interno
                 keyExtractor={(item, index) => item?._id?.toString() || index.toString()}
                 contentContainerStyle={{ gap: 10 }}
-                columnWrapperStyle={{ gap: 10 }}
-                renderItem={({ item }) => {
-                    if (!item) return null;
-                    return (
-                        <TouchableOpacity
-                            style={{
-                                flex: 1,
-                                padding: 15,
-                                borderWidth: 1,
-                                borderColor: '#ccc',
-                                backgroundColor: '#fff',
-                                borderRadius: 8,
-                            }}
-                            onPress={() => {
-                                console.log('Ingrediente seleccionado:', item);
-                                setSelected(item);
-                            }}
-                        >
-                            <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>
-                                {item?.nombre || 'Sin nombre'}
-                            </Text>
-                            <Text>Calorías: {item?.calorias ?? 0}</Text>
-                            <Text>Proteínas: {item?.proteinas ?? 0}</Text>
-                        </TouchableOpacity>
-                    );
-                }}
+                renderItem={({ item }) => (
+                    <IngredienteCard
+                        item={item}
+                        selected={ingredientesSeleccionados.includes(item._id)}
+                        onToggle={() => {
+                            if (ingredientesSeleccionados.includes(item._id)) {
+                                setIngredientesSeleccionados(ingredientesSeleccionados.filter(id => id !== item._id));
+                            } else {
+                                setIngredientesSeleccionados([...ingredientesSeleccionados, item._id]);
+                            }
+                        }}
+                        onPressInfo={() => setSelected(item)} // abre modal con detalle
+                    />
+                )}
             />
+
+            <TouchableOpacity
+                disabled={ingredientesSeleccionados.length < 3}
+                style={{
+                    backgroundColor: ingredientesSeleccionados.length >= 3 ? 'green' : 'gray',
+                    padding: 15,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                    marginTop: 20,
+                }}
+                onPress={() => {
+                    // guardas en context para CreateFood
+                    console.log("Ingredientes seleccionados:", ingredientesSeleccionados);
+                    navigation.goBack();
+                }}
+            >
+                <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+                    Agregar ingredientes a la comida
+                </Text>
+            </TouchableOpacity>
 
             <TouchableOpacity
                 style={{

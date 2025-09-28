@@ -36,7 +36,7 @@ export class FoodService {
     }
 
     static async getFoodById(id: number): Promise<IFood | null> {
-        const food = await Food.findOne({ id, state: true }).populate('ingredientes');
+        const food = await Food.findOne({ id, state: true }).populate('ingredientes').populate("meal", "nombre");
         if (!food) throw { status: 404, message: 'Comida no encontrada' };
         return food;
     }

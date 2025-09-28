@@ -5,6 +5,7 @@ import CreateFood from './createFood.component';
 import withHeader from '../withHeader';
 import IngredientesList from '../ingredents/ingredents.component';
 import CreateIngrediente from '../ingredents/create.component';
+import FoodDetail from './foodDetail';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,6 +16,7 @@ export default function FoodsStack() {
       <Stack.Screen name="CreateFood" component={withHeader(CreateFood)} />
       <Stack.Screen name="IngredientesList" component={withHeader(IngredientesList)} />
       <Stack.Screen name="CreateIngrediente" component={withHeader(CreateIngrediente)} />
+      <Stack.Screen name="FoodDetail" component={withHeader(FoodDetail)} />
     </Stack.Navigator>
   );
 }

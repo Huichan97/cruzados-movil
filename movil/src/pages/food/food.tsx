@@ -9,9 +9,13 @@ export default function Foods() {
   const [search, setSearch] = useState('');
   const navigation = useNavigation<any>();
 
-  const filtered = foods.filter((item) =>
-    (item.tipo || '').toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = foods.filter((item) => {
+    const searchLower = search.toLowerCase();
+    return (
+      (item.nombre || '').toLowerCase().includes(searchLower) ||
+      (item.meal?.nombre || '').toLowerCase().includes(searchLower)
+    );
+  });
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
@@ -21,8 +25,9 @@ export default function Foods() {
             Lista de Comidas
           </Text>
 
+          {/* 🔎 Buscador */}
           <TextInput
-            placeholder="Buscar comida..."
+            placeholder="Buscar comida por nombre o tipo..."
             value={search}
             onChangeText={setSearch}
             style={{
@@ -35,17 +40,33 @@ export default function Foods() {
             }}
           />
 
+          {/* Loading y errores */}
           {loading && <ActivityIndicator size="large" color="#007AFF" />}
           {error && <Text style={{ color: 'red' }}>{error}</Text>}
 
-          {filtered.map((food) => (
-            <FoodCard
-              key={food.id}
-              nombre={food.tipo}
-              descripcion={`Estado: ${food.estado}`}
-              onPress={() => alert(`Seleccionaste ${food.tipo}`)}
-            />
-          ))}
+          {/* Lista de comidas */}
+          {filtered.map((food) => {
+            // Calorías totales sumando ingredientes
+            const caloriasTotales = food.ingredientes?.reduce(
+              (acc, ing) => acc + (ing.calorias || 0),
+              0
+            );
+
+            // Ingredientes resumidos
+            const ingredientesTexto = food.ingredientes
+              ?.map((ing) => ing.nombre)
+              .join(', ');
+
+            return (
+              <FoodCard
+                key={food._id}
+                nombre={food.nombre}
+                descripcion={`Estado: ${food.estado} | Hora: ${food.horaEvento}\nIngredientes: ${ingredientesTexto}`}
+                calorias={caloriasTotales}
+                onPress={() => navigation.navigate('FoodDetail', { id: food.id })}
+              />
+            );
+          })}
 
           <View style={{ marginTop: 30, alignItems: 'center' }}>
             <Text style={{ color: '#888' }}>© 2025 Cruzados</Text>

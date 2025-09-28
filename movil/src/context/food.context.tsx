@@ -3,6 +3,7 @@ import { createFood, getFoods } from '../routes/food.route';
 import { createIngredient, getIngredients } from '../routes/ingredents.route';
 
 type Food = {
+  _id: string;
   id: number;
   nombre: string;
   meal: any
@@ -21,6 +22,8 @@ type FoodContextType = {
   addFood: (data: Partial<Food>) => Promise<void>;
   fetchIngredientes: () => Promise<void>;
   addIngrediente: (data: Partial<any>) => Promise<void>;
+  ingredientesSeleccionados: string[];
+  setIngredientesSeleccionados: (ids: string[]) => void;
 };
 
 const FoodContext = createContext<FoodContextType | undefined>(undefined);
@@ -30,8 +33,7 @@ export const FoodProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ingredientes, setIngredientes] = useState<any[]>([]);
-
-
+  const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState<string[]>([]);
 
   const fetchFoods = async () => {
     try {
@@ -105,6 +107,8 @@ export const FoodProvider = ({ children }: { children: ReactNode }) => {
       addFood,
       addIngrediente,
       fetchIngredientes,
+      ingredientesSeleccionados,
+      setIngredientesSeleccionados
     }}>
       {children}
     </FoodContext.Provider>

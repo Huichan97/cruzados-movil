@@ -6,7 +6,7 @@ import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 
 export default function CreateFood() {
-    const { addFood } = useFood();
+    const { addFood, ingredientesSeleccionados, ingredientes } = useFood();
     const navigation = useNavigation<any>();
 
     const [meal, setMeal] = useState('');
@@ -20,8 +20,12 @@ export default function CreateFood() {
         { nombre: 'Realizado' },
         { nombre: 'Omitido' },
     ]);
-
     const [meals, setMeals] = useState<any[]>([]);
+
+    const seleccionados = ingredientes.filter(ing =>
+        ingredientesSeleccionados.includes(ing._id)
+    );
+
 
     useEffect(() => {
         const fetchMeals = async () => {
@@ -48,11 +52,11 @@ export default function CreateFood() {
         try {
             await addFood({
                 nombre,
-                meal, // 👈 mandamos el _id
+                meal,
                 porcion: Number(porcion),
                 horaEvento,
                 estado,
-                ingredientes: [], // luego se integran ingredientes
+                ingredientes: ingredientesSeleccionados
             });
 
             Alert.alert('Éxito', 'Comida creada correctamente');
@@ -152,9 +156,33 @@ export default function CreateFood() {
                     <Picker.Item label={m.nombre} />
                 ))}
             </Picker>
+            {seleccionados.length > 0 && (
+                <View style={{ marginTop: 10, marginBottom: 20 }}>
+                    <Text style={{ fontWeight: 'bold', marginBottom: 10 }}>Ingredientes seleccionados:</Text>
+                    {seleccionados.map((ing) => (
+                        <View
+                            key={ing._id}
+                            style={{
+                                padding: 10,
+                                marginBottom: 5,
+                                borderWidth: 1,
+                                borderColor: '#ccc',
+                                borderRadius: 8,
+                                backgroundColor: '#f5f5f5',
+                            }}
+                        >
+                            <Text style={{ fontWeight: 'bold' }}>{ing.nombre}</Text>
+                            <Text>
+                                {ing.cantidad} {ing.tipoPeso}
+                            </Text>
+                        </View>
+                    ))}
+                </View>
+            )}
+
             <TouchableOpacity
                 style={{
-                    backgroundColor: '#28a745',
+                    backgroundColor: ingredientesSeleccionados.length > 0 ? 'blue' : 'green',
                     padding: 12,
                     borderRadius: 8,
                     alignItems: 'center',
@@ -162,10 +190,12 @@ export default function CreateFood() {
                 }}
                 onPress={() => navigation.navigate('IngredientesList')}
             >
-                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Agregar ingredientes</Text>
+                <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+                    {ingredientesSeleccionados.length > 0
+                        ? 'Modificar ingredientes'
+                        : 'Agregar ingredientes'}
+                </Text>
             </TouchableOpacity>
-
-
 
             <TouchableOpacity
                 style={{

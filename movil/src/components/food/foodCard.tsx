@@ -1,45 +1,58 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 
-type FoodCardProps = {
-    nombre: string;
-    descripcion: string;
-    onPress: () => void;
+type Props = {
+  nombre: string;
+  descripcion?: string;
+  calorias?: number;
+  onPress: () => void;
 };
 
-export default function FoodCard({ nombre, descripcion, onPress }: FoodCardProps) {
-    return (
-        <View
-            style={{
-                backgroundColor: '#fff',
-                padding: 15,
-                marginBottom: 15,
-                borderRadius: 10,
-                shadowColor: '#000',
-                shadowOpacity: 0.1,
-                shadowRadius: 5,
-                elevation: 3,
-            }}
-        >
-            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 5 }}>
-                {nombre}
-            </Text>
+export default function FoodCard({ nombre, descripcion, calorias, onPress }: Props) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={{
+        flexDirection: 'row',
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 10,
+        marginBottom: 15,
+        backgroundColor: '#fff',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Columna izquierda (30%) */}
+      <View
+        style={{
+          width: '30%',
+          backgroundColor: '#eee',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: 20,
+        }}
+      >
+        <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#555' }}>IMG</Text>
+      </View>
 
-            <Text style={{ fontSize: 14, color: '#555', marginBottom: 10 }}>
-                {descripcion}
-            </Text>
+      {/* Columna derecha (70%) */}
+      <View style={{ width: '70%', padding: 15 }}>
+        <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 5 }}>
+          {nombre}
+        </Text>
 
-            <TouchableOpacity
-                style={{
-                    backgroundColor: '#007AFF',
-                    padding: 10,
-                    borderRadius: 8,
-                    alignItems: 'center',
-                }}
-                onPress={onPress}
-            >
-                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Ver más</Text>
-            </TouchableOpacity>
-        </View>
-    );
+        {descripcion && (
+          <Text style={{ fontSize: 14, color: '#666', marginBottom: 5 }}>
+            {descripcion}
+          </Text>
+        )}
+
+        {calorias !== undefined && (
+          <Text style={{ fontSize: 13, color: '#999' }}>
+            Calorías: {calorias}
+          </Text>
+        )}
+      </View>
+    </TouchableOpacity>
+  );
 }
