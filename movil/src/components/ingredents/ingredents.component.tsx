@@ -40,12 +40,12 @@ export default function IngredientesList() {
                 renderItem={({ item }) => (
                     <IngredienteCard
                         item={item}
-                        selected={ingredientesSeleccionados.includes(item.id)}
+                        selected={ingredientesSeleccionados.includes(item._id)}
                         onToggle={() => {
-                            if (ingredientesSeleccionados.includes(item.id)) {
-                                setIngredientesSeleccionados(ingredientesSeleccionados.filter(id => id !== item.id));
+                            if (ingredientesSeleccionados.includes(item._id)) {
+                                setIngredientesSeleccionados(ingredientesSeleccionados.filter(id => id !== item._id));
                             } else {
-                                setIngredientesSeleccionados([...ingredientesSeleccionados, item.id]);
+                                setIngredientesSeleccionados([...ingredientesSeleccionados, item._id]);
                             }
                         }}
                         onPressInfo={() => setSelected(item)} // abre modal con detalle
